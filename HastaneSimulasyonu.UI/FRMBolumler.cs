@@ -1,8 +1,8 @@
 namespace HastaneSimulasyonu.UI
 {
-    public partial class Form1 : Form
+    public partial class FRMBolumler : Form
     {
-        public Form1()
+        public FRMBolumler()
         {
             InitializeComponent();
         }

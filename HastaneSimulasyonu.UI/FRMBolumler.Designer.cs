@@ -1,6 +1,6 @@
 ﻿namespace HastaneSimulasyonu.UI
 {
-    partial class Form1
+    partial class FRMBolumler
     {
         /// <summary>
         ///  Required designer variable.
