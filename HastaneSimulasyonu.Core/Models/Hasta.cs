@@ -10,7 +10,7 @@ namespace HastaneSimulasyonu.Core.Models
     {
         public int Id { get; set; }
         public string AdSoyad { get; set; }
-        public DateTime DogumTarihi { get; set; }
+        public string Sikayet { get; set; }
         public List<Randevu> Randevular { get; set; }
     }
 }
