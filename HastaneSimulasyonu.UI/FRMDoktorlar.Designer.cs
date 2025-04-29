@@ -160,7 +160,7 @@
             Controls.Add(txtAdSoyad);
             Controls.Add(dgvDoktorlar);
             Name = "FRMDoktorlar";
-            StartPosition = FormStartPosition.CenterParent;
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "FRMDoktorlar";
             ((System.ComponentModel.ISupportInitialize)dgvDoktorlar).EndInit();
             ResumeLayout(false);
