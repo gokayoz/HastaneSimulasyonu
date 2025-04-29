@@ -52,6 +52,7 @@
             dgvDoktorlar.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvDoktorlar.Size = new Size(658, 304);
             dgvDoktorlar.TabIndex = 0;
+            dgvDoktorlar.CellClick += dgvDoktorlar_CellClick;
             // 
             // txtAdSoyad
             // 
@@ -140,6 +141,7 @@
             btnGec.TabIndex = 3;
             btnGec.Text = ">>>>";
             btnGec.UseVisualStyleBackColor = true;
+            btnGec.Click += btnGec_Click;
             // 
             // FRMDoktorlar
             // 
