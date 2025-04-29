@@ -44,7 +44,6 @@ namespace HastaneSimulasyonu.UI
             dgvRandevular.Columns["RandevuTarihi"].HeaderText = "Randevu Tarihi";
             dgvRandevular.Columns["DoktorAdSoyad"].HeaderText = "Doktor Adı Soyadı";
             dgvRandevular.Columns["BolumAdi"].HeaderText = "Bölüm Adı";
-            dgvRandevular.Columns["Id"].Visible = false; // Randevu ID'sini gizleyelim
         }
 
         private void DoktorlariYukle()
@@ -75,7 +74,7 @@ namespace HastaneSimulasyonu.UI
                 MessageBox.Show("Lütfen hasta adı soyadı, şikayet ve doktoru seçiniz!");
                 return;
             }
-
+            // 2 insert transaction
             var hasta = new Hasta
             {
                 AdSoyad = txtAdSoyad.Text.Trim(),
@@ -153,9 +152,6 @@ namespace HastaneSimulasyonu.UI
             {
                 randevuGuncelle.DoktorId = (int)cmbDoktorlar.SelectedValue;
                 randevuGuncelle.Tarih = dtpRandevuTarih.Value;
-
-                // Hasta bilgisini güncellemek mantıklı olmayabilir, hasta kaydı ayrı yönetilebilir.
-                // İstenirse buraya hasta güncelleme kodu eklenebilir.
 
                 _context.SaveChanges();
                 RandevulariYukle();
