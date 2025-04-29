@@ -66,6 +66,7 @@
             dgvBolumler.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvBolumler.Size = new Size(658, 304);
             dgvBolumler.TabIndex = 2;
+            dgvBolumler.CellClick += dgvBolumler_CellClick;
             // 
             // btnGec
             // 
@@ -85,6 +86,7 @@
             btnGuncelle.TabIndex = 3;
             btnGuncelle.Text = "Güncelle";
             btnGuncelle.UseVisualStyleBackColor = true;
+            btnGuncelle.Click += btnGuncelle_Click;
             // 
             // btnSil
             // 
@@ -94,6 +96,7 @@
             btnSil.TabIndex = 3;
             btnSil.Text = "Sil";
             btnSil.UseVisualStyleBackColor = true;
+            btnSil.Click += btnSil_Click;
             // 
             // btnEkle
             // 

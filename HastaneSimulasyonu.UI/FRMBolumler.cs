@@ -1,6 +1,7 @@
 using HastaneSimulasyonu.Core.Context;
 using HastaneSimulasyonu.Core.Models;
 using System;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace HastaneSimulasyonu.UI
@@ -21,12 +22,12 @@ namespace HastaneSimulasyonu.UI
         {
             if (string.IsNullOrWhiteSpace(txtBolumAdi.Text))
             {
-                MessageBox.Show("Bölüm adý boþ olamaz!");
+                MessageBox.Show("Lütfen bölüm adýný giriniz.", "Giriþ Hatasý", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
             if (string.IsNullOrWhiteSpace(txtAciklama.Text))
             {
-                MessageBox.Show("Bölüm açýklamasý boþ olamaz!");
+                MessageBox.Show("Lütfen bölüm açýklamasýný giriniz.", "Giriþ Hatasý", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
             return true;
@@ -39,73 +40,52 @@ namespace HastaneSimulasyonu.UI
 
         public void BolumleriYukle()
         {
-            try
-            {
-                var bolumler = _context.Bolum.ToList();
-                dgvBolumler.DataSource = bolumler;
-                dgvBolumler.Refresh();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Bölümler yüklenirken hata oluþtu: {ex.Message}");
-            }
+            var bolumler = _context.Bolum.ToList();
+            dgvBolumler.DataSource = bolumler;
+            dgvBolumler.Refresh();
         }
 
         private void btnEkle_Click(object sender, EventArgs e)
         {
             if (!GirdiKontrol()) return;
 
-            try
+            bolum = new Bolum()
             {
-                bolum = new Bolum()
-                {
-                    Ad = txtBolumAdi.Text.Trim(),
-                    Aciklama = txtAciklama.Text.Trim(),
-                };
-                _context.Add(bolum);
-                _context.SaveChanges();
-                BolumleriYukle();
-                FormuTemizle();
-                MessageBox.Show("Bölüm baþarýyla oluþturuldu.");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Bölüm eklenirken hata oluþtu: {ex.Message}");
-            }
+                Ad = txtBolumAdi.Text.Trim(),
+                Aciklama = txtAciklama.Text.Trim(),
+            };
+            _context.Add(bolum);
+            _context.SaveChanges();
+            BolumleriYukle();
+            FormuTemizle();
+            MessageBox.Show("Bölüm baþarýyla oluþturuldu.", "Baþarýlý", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void btnSil_Click(object sender, EventArgs e)
         {
             if (dgvBolumler.SelectedRows.Count == 0)
             {
-                MessageBox.Show("Silme iþlemi için bölüm seçiniz!");
+                MessageBox.Show("Lütfen silmek için bir bölüm seçiniz.", "Uyarý", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             var seciliBolum = dgvBolumler.SelectedRows[0].DataBoundItem as Bolum;
             if (seciliBolum == null)
             {
-                MessageBox.Show("Seçilen satýr geçerli bir bölüm deðil!");
+                MessageBox.Show("Seçilen satýr geçerli bir bölüm deðil.", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
             DialogResult sonuc = MessageBox.Show($"{seciliBolum.Ad} bölümünü silmek istediðinize emin misiniz?",
-                "Silme Onayý", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                "Silme Onayý", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
 
             if (sonuc == DialogResult.Yes)
             {
-                try
-                {
-                    _context.Remove(seciliBolum);
-                    _context.SaveChanges();
-                    BolumleriYukle();
-                    FormuTemizle();
-                    MessageBox.Show("Silme iþlemi baþarýyla gerçekleþtirildi.");
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Bölüm silinirken hata oluþtu: {ex.Message}");
-                }
+                _context.Remove(seciliBolum);
+                _context.SaveChanges();
+                BolumleriYukle();
+                FormuTemizle();
+                MessageBox.Show("Bölüm baþarýyla silindi.", "Baþarýlý", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -113,7 +93,7 @@ namespace HastaneSimulasyonu.UI
         {
             if (dgvBolumler.SelectedRows.Count == 0)
             {
-                MessageBox.Show("Güncelleme iþlemi için bölüm seçiniz!");
+                MessageBox.Show("Lütfen güncellemek için bir bölüm seçiniz.", "Uyarý", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -122,29 +102,23 @@ namespace HastaneSimulasyonu.UI
             var seciliBolum = dgvBolumler.SelectedRows[0].DataBoundItem as Bolum;
             if (seciliBolum == null)
             {
-                MessageBox.Show("Seçilen satýr geçerli bir bölüm deðil!");
+                MessageBox.Show("Seçilen satýr geçerli bir bölüm deðil.", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            try
-            {
-                seciliBolum.Ad = txtBolumAdi.Text.Trim();
-                seciliBolum.Aciklama = txtAciklama.Text.Trim();
-                _context.SaveChanges();
-                BolumleriYukle();
-                FormuTemizle();
-                MessageBox.Show("Güncelleme iþlemi baþarýyla gerçekleþtirildi.");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Bölüm güncellenirken hata oluþtu: {ex.Message}");
-            }
+            seciliBolum.Ad = txtBolumAdi.Text.Trim();
+            seciliBolum.Aciklama = txtAciklama.Text.Trim();
+            _context.SaveChanges();
+            BolumleriYukle();
+            FormuTemizle();
+            MessageBox.Show("Bölüm baþarýyla güncellendi.", "Baþarýlý", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
-        private void dgvBolumler_SelectionChanged(object sender, EventArgs e)
+
+        private void dgvBolumler_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (dgvBolumler.SelectedRows.Count > 0)
+            if (e.RowIndex >= 0)
             {
-                var seciliBolum = dgvBolumler.SelectedRows[0].DataBoundItem as Bolum;
+                var seciliBolum = dgvBolumler.Rows[e.RowIndex].DataBoundItem as Bolum;
                 if (seciliBolum != null)
                 {
                     txtBolumAdi.Text = seciliBolum.Ad;
@@ -152,11 +126,13 @@ namespace HastaneSimulasyonu.UI
                 }
             }
         }
+
         private void btnGec_Click(object sender, EventArgs e)
         {
-            FRMDoktorlar fRMDoktorlar = new();
-            fRMDoktorlar.ShowDialog();
+            FRMDoktorlar fRMDoktorlar = new FRMDoktorlar();
             this.Hide();
+            fRMDoktorlar.Show();
+            fRMDoktorlar.FormClosed += (s, args) => this.Show();
         }
     }
 }

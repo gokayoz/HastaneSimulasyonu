@@ -18,32 +18,31 @@ namespace HastaneSimulasyonu.UI
             _context = new HastaneSimulasyonuDbContext();
             BolumleriYukle();
             DoktorlariYukle();
-            dgvDoktorlar.ClearSelection();
-            dgvDoktorlar.SelectionChanged += DgvDoktorlar_SelectionChanged;
         }
         private void BolumleriYukle()
         {
             var bolumler = _context.Bolum
-                    .Select(b => new { b.Id, b.Ad })
-                    .ToList();
+                                .Select(b => new { b.Id, b.Ad })
+                                .ToList();
 
             cmbBolumler.DisplayMember = "Ad";
             cmbBolumler.ValueMember = "Id";
             cmbBolumler.DataSource = bolumler;
+            cmbBolumler.SelectedIndex = -1;
         }
 
         private void DoktorlariYukle()
         {
             var doktorlar = _context.Doktor
-                .Include(d => d.Bolum)
-                .Select(d => new
-                {
-                    d.Id,
-                    d.AdSoyad,
-                    d.Telefon,
-                    BolumAdi = d.Bolum.Ad
-                })
-                .ToList();
+                                .Include(d => d.Bolum)
+                                .Select(d => new
+                                {
+                                    d.Id,
+                                    d.AdSoyad,
+                                    d.Telefon,
+                                    BolumAdi = d.Bolum.Ad
+                                })
+                                .ToList();
             dgvDoktorlar.DataSource = doktorlar;
         }
 
@@ -80,131 +79,116 @@ namespace HastaneSimulasyonu.UI
 
         private void btnEkle_Click(object sender, EventArgs e)
         {
-            try
+            if (!GirdiKontrol()) return;
+
+            var doktor = new Doktor()
             {
-                if (!GirdiKontrol()) return;
+                AdSoyad = txtAdSoyad.Text.Trim(),
+                Telefon = txtTelefon.Text.Trim(),
+                BolumId = (int)cmbBolumler.SelectedValue
+            };
 
-                var doktor = new Doktor()
-                {
-                    AdSoyad = txtAdSoyad.Text.Trim(),
-                    Telefon = txtTelefon.Text.Trim(),
-                    BolumId = (int)cmbBolumler.SelectedValue
-                };
+            _context.Add(doktor);
+            _context.SaveChanges();
+            FormuTemizle();
+            DoktorlariYukle();
 
-                _context.Add(doktor);
-                _context.SaveChanges();
-                FormuTemizle();
-                DoktorlariYukle();
-
-                MessageBox.Show("Doktor başarıyla eklendi.", "Bilgi",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Doktor eklenirken bir hata oluştu: {ex.Message}", "Hata",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            MessageBox.Show("Doktor başarıyla eklendi.", "Bilgi",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void btnSil_Click(object sender, EventArgs e)
         {
-            try
+            if (seciliDoktor == null)
             {
-                if (seciliDoktor == null)
-                {
-                    MessageBox.Show("Lütfen silmek istediğiniz doktoru listeden seçiniz!", "Uyarı",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-                DialogResult result = MessageBox.Show(
-                    $"{seciliDoktor.AdSoyad} isimli doktoru silmek istediğinize emin misiniz?",
-                    "Silme Onayı",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question);
-
-                if (result == DialogResult.No)
-                    return;
-
-                var doktorDb = _context.Doktor.Find(seciliDoktor.Id);
-                if (doktorDb != null)
-                {
-                    _context.Remove(doktorDb);
-                    _context.SaveChanges();
-                    FormuTemizle();
-                    DoktorlariYukle();
-                    MessageBox.Show("Doktor başarıyla silindi.", "Bilgi",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                else
-                {
-                    MessageBox.Show("Seçilen doktor bulunamadı!", "Uyarı",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
+                MessageBox.Show("Lütfen silmek istediğiniz doktoru listeden seçiniz!", "Uyarı",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
-            catch (Exception ex)
+
+            DialogResult result = MessageBox.Show(
+                $"{seciliDoktor.AdSoyad} isimli doktoru silmek istediğinize emin misiniz?",
+                "Silme Onayı",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (result == DialogResult.No)
+                return;
+
+            var doktorDb = _context.Doktor.Find(seciliDoktor.Id);
+            if (doktorDb != null)
             {
-                MessageBox.Show($"Doktor silinirken bir hata oluştu: {ex.Message}", "Hata",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                _context.Remove(doktorDb);
+                _context.SaveChanges();
+                FormuTemizle();
+                DoktorlariYukle();
+                MessageBox.Show("Doktor başarıyla silindi.", "Bilgi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                MessageBox.Show("Seçilen doktor bulunamadı!", "Uyarı",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
         private void btnGuncelle_Click(object sender, EventArgs e)
         {
-            try
+            if (seciliDoktor == null)
             {
-                if (seciliDoktor == null)
-                {
-                    MessageBox.Show("Lütfen güncellemek istediğiniz doktoru listeden seçiniz!", "Uyarı",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-                if (!GirdiKontrol()) return;
-
-                var doktorDb = _context.Doktor.Find(seciliDoktor.Id);
-                if (doktorDb != null)
-                {
-                    doktorDb.AdSoyad = txtAdSoyad.Text.Trim();
-                    doktorDb.Telefon = txtTelefon.Text.Trim();
-                    doktorDb.BolumId = (int)cmbBolumler.SelectedValue;
-
-                    _context.SaveChanges();
-                    FormuTemizle();
-                    DoktorlariYukle();
-                    MessageBox.Show("Doktor başarıyla güncellendi.", "Bilgi",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                else
-                {
-                    MessageBox.Show("Seçilen doktor bulunamadı!", "Uyarı",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
+                MessageBox.Show("Lütfen güncellemek istediğiniz doktoru listeden seçiniz!", "Uyarı",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
-            catch (Exception ex)
+
+            if (!GirdiKontrol()) return;
+
+            var doktorDb = _context.Doktor.Find(seciliDoktor.Id);
+            if (doktorDb != null)
             {
-                MessageBox.Show($"Doktor güncellenirken bir hata oluştu: {ex.Message}", "Hata",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                doktorDb.AdSoyad = txtAdSoyad.Text.Trim();
+                doktorDb.Telefon = txtTelefon.Text.Trim();
+                doktorDb.BolumId = (int)cmbBolumler.SelectedValue;
+
+                _context.SaveChanges();
+                FormuTemizle();
+                DoktorlariYukle();
+                MessageBox.Show("Doktor başarıyla güncellendi.", "Bilgi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                MessageBox.Show("Seçilen doktor bulunamadı!", "Uyarı",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
-        private void DgvDoktorlar_SelectionChanged(object sender, EventArgs e)
+        private void dgvDoktorlar_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (dgvDoktorlar.SelectedRows.Count > 0)
+            if (e.RowIndex >= 0)
             {
-                var seciliSatir = dgvDoktorlar.SelectedRows[0];
-                int doktorId = (int)seciliSatir.Cells["Id"].Value;
-
-                seciliDoktor = _context.Doktor.Find(doktorId);
-
-                if (seciliDoktor != null)
+                var seciliSatir = dgvDoktorlar.Rows[e.RowIndex];
+                if (seciliSatir.DataBoundItem != null)
                 {
-                    txtAdSoyad.Text = seciliDoktor.AdSoyad;
-                    txtTelefon.Text = seciliDoktor.Telefon;
-                    cmbBolumler.SelectedValue = seciliDoktor.BolumId;
+                    int doktorId = (int)seciliSatir.Cells["Id"].Value;
+                    seciliDoktor = _context.Doktor.Find(doktorId);
+
+                    if (seciliDoktor != null)
+                    {
+                        txtAdSoyad.Text = seciliDoktor.AdSoyad;
+                        txtTelefon.Text = seciliDoktor.Telefon;
+                        cmbBolumler.SelectedValue = seciliDoktor.BolumId;
+                    }
                 }
             }
+        }
 
+        private void btnGec_Click(object sender, EventArgs e)
+        {
+            FRMRandevular fRMRandevular = new FRMRandevular();
+            this.Hide();
+            fRMRandevular.Show();
+            fRMRandevular.FormClosed += (s, args) => this.Show();
         }
     }
 }
